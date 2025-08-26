@@ -1,0 +1,149 @@
+import time
+import pytest
+# import pdb
+from selenium import webdriver
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
+# scope is function as all login test functions can share this setup
+@pytest.fixture(
+    scope="function")  # Fixtures help keep your tests organized and avoid repeating setup and cleanup code. They make your test code cleaner.
+def driver():
+    driver = webdriver.Chrome()
+    yield driver  # yield = (cleaning up after the test)
+    driver.quit()
+
+
+def test_empty_fields(driver):
+    driver.get("https://www.overleaf.com/login")
+    email_field = driver.find_element(By.ID, "email")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div[1]/form/div[6]/button')
+    email_field.send_keys(" ")
+    password_field.send_keys(" ")
+    submit_button.click()
+    # alert = WebDriverWait(driver, 30).until(
+    # EC.presence_of_element_located((By.CLASS_NAME, "small text-danger mt-2")))
+    # EC.or_(
+    #     EC.alert_is_present(),
+    #     EC.presence_of_element_located(By.XPATH, '/html/body/div[5]/div/div[2]/div/div[2]/div/div/div[1]/div')
+    # )
+    # error_text1 = alert.text
+    # print(actual_error)
+    # expected_error = "Login Failed"
+    # assert actual_error == expected_error, f"Expected {expected_error} but got {actual_error}"
+    assert "Please fill out this field." in driver.page_source
+    assert "Please fill out this field." in driver.page_source
+
+
+# Test case for invalid email format
+def test_invalid_email(driver):
+    driver.get("https://www.overleaf.com/login")
+    email_field = driver.find_element(By.ID, "email")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div[1]/form/div[6]/button')
+    email_field.send_keys("invalid_email.com")
+    password_field.send_keys("yjjican@test#3")
+    submit_button.click()
+    # alert = WebDriverWait(driver, 30).until(
+    # EC.presence_of_element_located((By.CLASS_NAME, "small text-danger mt-2")))
+    # EC.or_(
+    #     EC.alert_is_present(),
+    #     EC.presence_of_element_located(By.XPATH, '/html/body/div[5]/div/div[2]/div/div[2]/div/div/div[1]/div')
+    # )
+    # error_text1 = alert.text
+    # print(actual_error)
+    # expected_error = "Login Failed"
+    # assert actual_error == expected_error, f"Expected {expected_error} but got {actual_error}"
+    assert "Please include an '@' in the email address. 'invalid_email.com' is missing an '@'." in driver.page_source
+
+
+def test_wrong_password(driver):
+    driver.get("https://www.overleaf.com/login")
+    try:
+        email_field = driver.find_element(By.ID, "email")
+        password_field = driver.find_element(By.ID, "password")
+        submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div[1]/form/div[6]/button')
+        email_field.send_keys("esha@jfmd.com")
+        password_field.send_keys("invalid_password")
+        submit_button.click()
+        # alert = WebDriverWait(driver, 30).until(
+        #     EC.presence_of_element_located((By.CLASS_NAME, "ant-modal-confirm-content")))
+        time.sleep(5)
+        alert = driver.find_element(By.CLASS_NAME, "alert alert-danger")
+        error_text3 = alert.text
+        assert error_text3 == "Your email or password is incorrect. Please try again, or set or reset your password."
+
+    except NoSuchElementException as e:
+
+        print(f"Element not found. Exception details: {e}")
+
+
+def test_If_email_is_blank_at_forgot_password(driver):
+    driver.get("https://www.overleaf.com/user/password/reset")
+    try:
+        email_field = driver.find_element(By.ID, "email")
+        submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div/div[1]/form/div[1]/div[3]/button')
+        email_field.send_keys(" ")
+
+        submit_button.click()
+        # alert = WebDriverWait(driver, 30).until(
+        #     EC.presence_of_element_located((By.CLASS_NAME, "ant-modal-confirm-content")))
+        time.sleep(5)
+        alert = driver.find_element(By.CLASS_NAME, "small text-danger mt-2")
+        error_text1 = alert.text
+        assert error_text1 == "Please fill out this field."
+    except NoSuchElementException as e:
+
+        print(f"Element not found. Exception details: {e}")
+
+
+def test_If_email_is_not_valid(driver):
+    driver.get("https://www.overleaf.com/user/password/reset")
+    try:
+
+        email_field = driver.find_element(By.ID, "email")
+        submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div/div[1]/form/div[1]/div[3]/button')
+        email_field.send_keys("use your valid email")
+
+        submit_button.click()
+        # alert = WebDriverWait(driver, 30).until(
+        #     EC.presence_of_element_located((By.CLASS_NAME, "ant-modal-confirm-content")))
+        time.sleep(5)
+        alert = driver.find_element(By.CLASS_NAME, "small text-danger mt-2")
+        error_text3 = alert.text
+        assert error_text3 == "Please include an '@' in the email address. 'nooresha81gmail.com' is missing an '@'."
+
+    except NoSuchElementException as e:
+
+        print(f"Element not found. Exception details: {e}")
+def test_empty_fields_for_Register(driver):
+    driver.get("https://www.overleaf.com/register")
+    email_field = driver.find_element(By.ID, "email")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/div[1]/form/div[7]/button')
+    email_field.send_keys(" ")
+    password_field.send_keys(" ")
+    submit_button.click()
+    # alert = WebDriverWait(driver, 30).until(
+    # EC.presence_of_element_located((By.CLASS_NAME, "small text-danger mt-2")))
+    # EC.or_(
+    #     EC.alert_is_present(),
+    #     EC.presence_of_element_located(By.XPATH, '/html/body/div[5]/div/div[2]/div/div[2]/div/div/div[1]/div')
+    # )
+    # error_text1 = alert.text
+    # print(actual_error)
+    # expected_error = "Login Failed"
+    # assert actual_error == expected_error, f"Expected {expected_error} but got {actual_error}"
+    alert = driver.find_element(By.CLASS_NAME, "small text-danger mt-2")
+    error_text1 = alert.text
+    assert error_text1 == "Please fill out this field."
+    alert = driver.find_element(By.CLASS_NAME, "small text-danger mt-2")
+    error_text1 = alert.text
+    assert error_text1 == "Please fill out this field."
+
+
+pytest.main(["-v", "--html=report.html"])
