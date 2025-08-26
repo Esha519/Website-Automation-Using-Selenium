@@ -1,0 +1,110 @@
+import time
+
+import pytest
+# import pdb
+from selenium import webdriver
+from selenium.webdriver.common.by import By  #I want to use the 'By' tool from Selenium in my code to help me find and interact with elements on a webpage."
+from selenium.webdriver.support.wait import WebDriverWait # line is like saying, "I want to use the waiting tool from Selenium called 'WebDriverWait' in my code." This tool helps us ensure that the webpage is ready for the actions we want to perform.
+from selenium.webdriver.support import expected_conditions as EC # In Selenium, we often need to wait for things to happen on a webpage. 'expected_conditions' helps us define what we are waiting for.
+
+
+# scope is function as all login test functions can share this setup
+@pytest.fixture(scope="function")
+def driver():
+    driver = webdriver.Chrome()
+    yield driver
+    driver.quit()
+
+# Test case for empty fields
+def test_empty_fields(driver):
+    driver.get("use your login url")
+    submit_button = driver.find_element(By.XPATH, 'use your vlaue')
+    submit_button.click()
+
+    assert "Please input your email!" in driver.page_source
+    assert "Please input your password!" in driver.page_source
+
+# # Test case for invalid email format
+def test_invalid_email(driver):
+    driver.get("use your login url")
+    email_field = driver.find_element(By.ID, "username")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, 'use your vlaue')
+    email_field.send_keys("invalid_email.com")
+    password_field.send_keys("hhhn@test#3")
+    submit_button.click()
+    alert = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "use your vlaue")))
+    # EC.or_(
+    #     EC.alert_is_present(),
+    #     EC.presence_of_element_located(By.XPATH, 'use your vlaue')
+    # )
+    error_text1 = alert.text
+    # print(actual_error)
+    # expected_error = "Login Failed"
+    # assert actual_error == expected_error, f"Expected {expected_error} but got {actual_error}"
+    assert error_text1 == "The email must be a valid email address."
+
+#
+# # # Test case for invalid username
+def test_wrong_email(driver):
+    driver.get("use your login url")
+    email_field = driver.find_element(By.ID, "username")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, 'use your vlaue')
+
+    email_field.send_keys("wrong@email.com")
+    password_field.send_keys("hhtest#3")
+    submit_button.click()
+    # alert = WebDriverWait(driver, 10).until(
+    #     EC.presence_of_element_located((By.XPATH, 'use your vlaue')))
+    time.sleep(5)
+    alert = driver.find_element(By.CLASS_NAME, "use your vlaue")
+    error_text2 = alert.text
+    assert error_text2 == "User not found" # error text can be change based on user demand
+#     # alert.accept()
+#
+#
+# #
+# #
+# # # Test case for invalid password
+def test_wrong_password(driver):
+    driver.get("use your login url")
+    email_field = driver.find_element(By.ID, "username")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, 'use your vlaue')
+
+    email_field.send_keys("maruyew@gmaill.com")
+    password_field.send_keys("invalid_password")
+    submit_button.click()
+    # alert = WebDriverWait(driver, 30).until(
+    #     EC.presence_of_element_located((By.CLASS_NAME, "use your vlaue")))
+    time.sleep(5)
+    alert = driver.find_element(By.CLASS_NAME, "use your vlaue")
+    error_text3 = alert.text
+    assert error_text3 == "User Email or Password is incorrect."
+
+#
+#
+# #
+# #
+# # Test case for valid login
+def test_valid_login(driver):
+    driver.get("use your login url")
+    email_field = driver.find_element(By.ID, "username")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.XPATH, '/use your vlaue')
+
+    email_field.send_keys("shs01@gmail.com")
+    password_field.send_keys("aA123456")
+    submit_button.click()
+    # driver.get("use your login url")
+    user_element = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, 'use your vlaue'))
+    username = user_element.text
+    assert username == 'Siora'
+
+#
+#
+# # Generate HTML report using pytest-html plugin
+pytest.main(["-v", "--html=report.html"])
